@@ -1,5 +1,6 @@
 import tkinter as tk
 from myCalendar import MyCalendar
+from databaseSqlite import MySQLiteDB
 
 class Main(tk.Tk):
     main_frame_color = "#039be5"
@@ -21,6 +22,7 @@ class Main(tk.Tk):
         self.output_frame = tk.LabelFrame(self.main_frame , text="Twoje przepracowane godziny")
         self.output_frame.config(font=("Arial",13), background=Main.output_frame_color)
         self.create_widgets()
+        self.start_db()
     
     def create_widgets(self):
         tk.Label(self.output_frame, text="output").grid(row=0, column=0)
@@ -33,28 +35,28 @@ class Main(tk.Tk):
         lbl_hours = tk.Label(self.input_frame, text="Wpisz godziny")
         lbl_hours.config(font=my_font+("bold",), background=Main.input_frame_color, fg="#01579b" )
         lbl_hours.pack(pady=2)
-        spbox = tk.Spinbox(self.input_frame, from_=0, to=24, increment=0.5)
-        spbox.config(font=my_font)
-        spbox.pack(pady=10)
+        self.spbox = tk.Spinbox(self.input_frame, from_=0, to=24, increment=0.5)
+        self.spbox.config(font=my_font)
+        self.spbox.pack(pady=10)
         
         ## date
         tk.Label(self.input_frame, text=" ", background=Main.input_frame_color).pack(pady=5)
         lbl_date = tk.Label(self.input_frame, text="Wybierz datę")
         lbl_date.config(font=my_font+("bold",), background=Main.input_frame_color, fg="#01579b")
         lbl_date.pack(pady=2)
-        cal =MyCalendar(self.input_frame)
-        cal.pack(pady=5)
+        self.cal =MyCalendar(self.input_frame)
+        self.cal.pack(pady=5)
         
         ## Klawisz zatwierdzający
         tk.Label(self.input_frame, text=" ", background=Main.input_frame_color).pack(pady=5)
-        btn = tk.Button(self.input_frame, text="Zatwierdź dane")
-        btn.config(font=my_font+("bold",)
+        self.btn = tk.Button(self.input_frame, text="Zatwierdź dane", command=self.send_date)
+        self.btn.config(font=my_font+("bold",)
                     , background="#01579b"
                     , foreground="white"
                     , activebackground="#42a5f5"
                     , activeforeground="white"
                     , width=15, height=3)
-        btn.pack(pady=10)
+        self.btn.pack(pady=10)
         
         
         
@@ -68,9 +70,14 @@ class Main(tk.Tk):
         self.input_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10 )
         self.output_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
+    def send_date(self):
+        my_hours = float(self.spbox.get())
+        my_date = self.cal.take_date()        
+        self.myDB.insert_data(my_hours, my_date)
 
 
-
+    def start_db(self):
+        self.myDB = MySQLiteDB() 
 
 
 if __name__ == "__main__":
